@@ -33,26 +33,29 @@ def initialize_state() -> None:
 
 
 def product_card(service: GroceryService, product: dict, compact: bool = False) -> None:
-    st.markdown(
-        f"""
-        <div class="product-card">
-            <div style="display:flex; gap:0.8rem; align-items:flex-start;">
-                <div class="product-emoji" style="background:{product['accent_color']};">{product['image_emoji']}</div>
-                <div style="flex:1;">
-                    <div style="font-weight:700; font-size:1.02rem;">{product['name']}</div>
-                    <div class="muted">{product['subtitle']}</div>
-                    <div class="muted">{product['unit']} • ⭐ {product['rating']}</div>
-                    <div class="price-row">
-                        <span class="price-main">{product['price']:.1f} ₽</span>
-                        {f"<span class='price-old'>{product['old_price']:.1f} ₽</span>" if product['old_price'] else ""}
-                    </div>
-                    <div class="badge-strip">{render_badges(product['badges'])}</div>
+    with st.container():
+        image_col, content_col = st.columns([1, 4])
+        with image_col:
+            st.markdown(
+                f"""
+                <div class="product-emoji" style="background:{product['accent_color']}; margin-top:0.1rem;">
+                    {product['image_emoji']}
                 </div>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+                """,
+                unsafe_allow_html=True,
+            )
+        with content_col:
+            st.markdown(f"**{product['name']}**")
+            st.caption(product["subtitle"])
+            st.caption(f"{product['unit']} | rating {product['rating']}")
+            price_line = f"**{product['price']:.1f} RUB**"
+            if product["old_price"]:
+                price_line += f"  ~~{product['old_price']:.1f} RUB~~"
+            st.markdown(price_line)
+            if product["badges"]:
+                st.markdown(" ".join(f"`{badge}`" for badge in product["badges"]))
+
+        st.markdown("<div style='margin-bottom:0.75rem;'></div>", unsafe_allow_html=True)
     left, right = st.columns([1, 1])
     with left:
         fav_label = "Убрать из избранного" if product["is_favorite"] else "В избранное"
